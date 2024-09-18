@@ -27,8 +27,14 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    if (persons.find(el => el.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+    if (persons.find(el => el.name === newName && el.number === newNumber)) {
+      alert(`${newName} is already added to phonebook, with the exact same number ${newNumber} `)
+
+    } else if( persons.find(person => person.name === newName )){
+      if(confirm(`${newName} is already added to phonebook with another number, replace de old number with a new one`)){
+        console.log('vas a cambiar el numero de una persona');
+        
+      }
 
     } else {
       const personObject = {
