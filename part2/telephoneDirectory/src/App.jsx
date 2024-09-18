@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { Filter } from './components/Filter'
 import { PersonForm } from './components/PersonForm'
 import { PersonList } from './components/PersonList'
-import axios from 'axios'
+
+import personService from './components/services/personService'
+
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -10,13 +12,15 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [searchedPerson, setSearchedPerson] = useState('')
 
-  useEffect(()=>{
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+  useEffect(() => {
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
-  },[])
+
+
+  }, [])
 
 
 
@@ -31,8 +35,13 @@ const App = () => {
         name: newName,
         number: newNumber
       }
-      setPersons(persons.concat(personObject))
-      setNewName('')
+
+      personService
+        .create(personObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+        })
     }
   }
 
@@ -49,6 +58,17 @@ const App = () => {
   const handleFilteredPersons = (event) => {
     console.log(event.target.value);
     setSearchedPerson(event.target.value)
+  }
+
+  const handleDelete = (id, name) => {
+    if (confirm(`Delete ${name}?`)) {
+      personService
+        .deletePerson(id)
+        .then(deletedPerson => {
+          setPersons(persons.filter(person => person.id != deletedPerson.id))
+        }
+        )
+    }
   }
 
   return (
@@ -70,6 +90,7 @@ const App = () => {
       <PersonList
         persons={persons}
         searchedPerson={searchedPerson}
+        handleDelete={handleDelete}
       />
     </div>
   )
