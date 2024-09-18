@@ -4,6 +4,7 @@ import { PersonForm } from './components/PersonForm'
 import { PersonList } from './components/PersonList'
 
 import personService from './components/services/personService'
+import { Notification } from './components/Notification'
 
 
 const App = () => {
@@ -11,6 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchedPerson, setSearchedPerson] = useState('')
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
     personService
@@ -18,8 +20,6 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
       })
-
-
   }, [])
 
 
@@ -32,8 +32,22 @@ const App = () => {
 
     } else if( persons.find(person => person.name === newName )){
       if(confirm(`${newName} is already added to phonebook with another number, replace de old number with a new one`)){
-        console.log('vas a cambiar el numero de una persona');
-        
+        const personFind = persons.find( person => person.name === newName)
+        const personObject = {
+          name: newName,
+          number: newNumber
+        }
+        personService
+          .update(personFind.id, personObject)
+          .then(returnedPerson => {
+            setPersons(persons.map(person => person.id !== returnedPerson.id ? person : returnedPerson  ))
+            setNotification(`Se cambio el numero de ${returnedPerson.name} , numero antiguo ${personFind.number} por el numero nuevo ${returnedPerson.number} `)
+            setTimeout(() => {
+              setNotification(null)
+            }, 3000)
+          })
+         
+        console.log(`vas a cambiar el numero de una persona con id ${personFind.id}`);
       }
 
     } else {
@@ -80,6 +94,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} />
       <Filter searchedPerson={searchedPerson} handleFilteredPersons={handleFilteredPersons} />
 
       <h3>Add a new</h3>
