@@ -25,6 +25,16 @@ function App() {
     );
   };
 
+  const handleShowClick = (countryName) => {
+    console.log("cliked");
+    console.log(countryName);
+    const showCountry = searchedCountries.filter(
+      (el) => el.name.common === countryName
+    );
+    console.log(showCountry);
+    setSearchedCountries(showCountry);
+  };
+
   return (
     <>
       <h1>Countries</h1>
@@ -39,7 +49,7 @@ function App() {
       )}
 
       {searchedCountries.length > 1 && searchedCountries.length <= 10 && (
-        <CountriesList searchedCountries={searchedCountries} />
+        <CountriesList searchedCountries={searchedCountries} handleShowClick={handleShowClick} />
       )}
 
       {searchedCountries.length === 1 && (
