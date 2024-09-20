@@ -1,48 +1,50 @@
 import { useEffect, useState } from "react";
 import countriesService from "./services/countriesService";
+import { CountriesList } from "./components/countriesList";
+import { CountryDetail } from "./components/CountryDetail";
 
 function App() {
   const [countries, setCountries] = useState([]);
-  const [searchedCountries, setSearchedCountries] = useState([])
-  const [searchCountriesValue, setSearchCountriesValue] = useState('');
+  const [searchedCountries, setSearchedCountries] = useState([]);
+  const [searchCountriesValue, setSearchCountriesValue] = useState("");
 
   useEffect(() => {
     countriesService.getAll().then((initialCountries) => {
       setCountries(initialCountries);
-      console.log(initialCountries);
     });
   }, []);
 
   const handleFilter = (event) => {
-      console.log(event.target.value);
-      setSearchCountriesValue(event.target.value)
-      setSearchedCountries(countries.filter((country) => country.name.common.toLowerCase().includes(searchCountriesValue.toLowerCase())))
-      
-  }
+    const filterValue = event.target.value;
+    setSearchCountriesValue(filterValue);
+
+    setSearchedCountries(
+      countries.filter((country) =>
+        country.name.common.toLowerCase().includes(filterValue.toLowerCase())
+      )
+    );
+  };
 
   return (
     <>
       <h1>Countries</h1>
 
       <p>
-        find countries <input onChange={handleFilter}/>
+        find countries{" "}
+        <input value={searchCountriesValue} onChange={handleFilter} />
       </p>
-      {
-        searchedCountries.length > 10 
-        ?
-        <p>Hay demasiados resultados, intenten una busqueda mas espesifica</p>
-        :
-        searchedCountries.map((country) => (
-          
-          <li key={country.name.common}>
-            {country.name.common}
-          </li>
-        ))
-      }
 
-   
+      {searchedCountries.length > 10 && (
+        <p>Too many results, please refine your search</p>
+      )}
 
+      {searchedCountries.length > 1 && searchedCountries.length <= 10 && (
+        <CountriesList searchedCountries={searchedCountries} />
+      )}
 
+      {searchedCountries.length === 1 && (
+        <CountryDetail searchedCountries={searchedCountries}/>
+      )}
     </>
   );
 }
